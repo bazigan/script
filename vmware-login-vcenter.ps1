@@ -15,7 +15,7 @@ function Read-Host-Default {
 }
 
 $defaultVcenter = "172.23.0.20"
-$defaultUser = "administrator@vsphere.local"
+$defaultUser = "administrator@idn.local"
 
 $vcenterServer = Read-Host-Default "🔐 Masukkan hostname atau IP vCenter" $defaultVcenter
 $vcenterUser = Read-Host-Default "👤 Masukkan username vCenter" $defaultUser
