@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Ambil semua DB instance identifiers
+DB_INSTANCES=$(aws rds describe-db-instances --query "DBInstances[].DBInstanceIdentifier" --output text)
+
+if [ -z "$DB_INSTANCES" ]; then
+    echo "Tidak ada DB instance ditemukan."
+    exit 0
+fi
+
+echo "Ditemukan DB Instances:"
+echo "$DB_INSTANCES"
+
+# Loop hapus setiap DB instance
+for db in $DB_INSTANCES; do
+    echo "Menghapus RDS instance: $db ..."
+    aws rds delete-db-instance \
+        --db-instance-identifier "$db" \
+        --skip-final-snapshot \
+        --delete-automated-backups
+
+    echo "Perintah penghapusan dikirim untuk: $db"
+done
+
+echo "Selesai menghapus semua DB instance."

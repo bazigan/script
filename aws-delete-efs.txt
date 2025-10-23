@@ -1,0 +1,29 @@
+# Ambil semua FileSystemId
+FILESYSTEMS=$(aws efs describe-file-systems --query "FileSystems[].FileSystemId" --output text)
+
+if [ -z "$FILESYSTEMS" ]; then
+    echo "✅ Tidak ada EFS ditemukan."
+    exit 0
+fi
+
+for fs in $FILESYSTEMS; do
+    echo "🔍 Memproses EFS: $fs"
+
+    # Hapus semua mount target dulu
+    MOUNTS=$(aws efs describe-mount-targets --file-system-id "$fs" --query "MountTargets[].MountTargetId" --output text)
+    if [ -n "$MOUNTS" ]; then
+        for mt in $MOUNTS; do
+            echo "  🗑️  Menghapus mount target: $mt"
+            aws efs delete-mount-target --mount-target-id "$mt"
+        done
+        echo "  ⏳ Menunggu semua mount target terhapus..."
+        sleep 10
+    fi
+
+    # Hapus file system
+    echo "🗑️  Menghapus filesystem: $fs"
+    aws efs delete-file-system --file-system-id "$fs"
+    echo "✅ EFS $fs sudah dihapus."
+done
+
+echo "🎯 Semua EFS sudah dihapus."

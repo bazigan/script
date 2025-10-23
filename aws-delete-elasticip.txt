@@ -1,0 +1,14 @@
+# Ambil semua Allocation ID dari Elastic IP
+EIP_IDS=$(aws ec2 describe-addresses --query "Addresses[].AllocationId" --output text)
+
+if [ -z "$EIP_IDS" ]; then
+    echo "✅ Tidak ada Elastic IP ditemukan."
+    exit 0
+fi
+
+for eip in $EIP_IDS; do
+    echo "🗑️  Melepas Elastic IP dengan Allocation ID: $eip ..."
+    aws ec2 release-address --allocation-id "$eip"
+done
+
+echo "✅ Semua Elastic IP sudah dilepas."

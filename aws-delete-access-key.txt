@@ -1,0 +1,30 @@
+echo "🔍 Mengambil daftar semua IAM user ..."
+USERS=$(aws iam list-users --query "Users[].UserName" --output text)
+
+if [ -z "$USERS" ]; then
+    echo "❌ Tidak ada user ditemukan."
+    exit 0
+fi
+
+for user in $USERS; do
+    echo
+    echo "👤 Memproses user: $user"
+
+    KEYS=$(aws iam list-access-keys --user-name "$user" --query "AccessKeyMetadata[].AccessKeyId" --output text)
+
+    if [ -z "$KEYS" ]; then
+        echo "  ✅ Tidak ada access key untuk $user"
+    else
+        echo "  🔑 Ditemukan access key: $KEYS"
+        for key in $KEYS; do
+            echo "  🗑️  Menghapus access key: $key ..."
+            aws iam delete-access-key --user-name "$user" --access-key-id "$key"
+        done
+        echo "  ✅ Semua access key untuk $user sudah dihapus."
+    fi
+done
+
+echo
+echo "🎯 Selesai menghapus semua access key dari seluruh user IAM."
+
+

@@ -1,0 +1,14 @@
+# Ambil semua NAT Gateway ID
+NAT_IDS=$(aws ec2 describe-nat-gateways --query "NatGateways[].NatGatewayId" --output text)
+
+if [ -z "$NAT_IDS" ]; then
+    echo "✅ Tidak ada NAT Gateway ditemukan."
+    exit 0
+fi
+
+for nat in $NAT_IDS; do
+    echo "🗑️  Menghapus NAT Gateway: $nat ..."
+    aws ec2 delete-nat-gateway --nat-gateway-id "$nat"
+done
+
+echo "✅ Semua NAT Gateway sudah dijadwalkan untuk dihapus."
