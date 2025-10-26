@@ -1,0 +1,2 @@
+aws s3 ls | cut -d ' ' -f3 | xargs -I {} aws s3 rm s3://{} --recursive
+aws s3 ls | cut -d ' ' -f3 | xargs -I {} aws s3 rb s3://{}
