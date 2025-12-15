@@ -1,0 +1,9 @@
+for ((i=1;i<8;i++)) do
+aws iam create-user --user-name idn$i
+done
+
+
+for ((i=1;i<8;i++)) do
+aws iam create-login-profile --user-name idn$i --password Idn@2025 --no-password-reset-required
+done
+
