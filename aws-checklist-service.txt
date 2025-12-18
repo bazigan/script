@@ -1,16 +1,16 @@
 # ap-southeast-1 (singapore)
-IAM
-ec2
+IAM v
+ec2 v
 ebs
-efs
-s3
-cloudfront
+efs v
+s3 v
+cloudfront v
 vpc
-nat-gateway
-elastic-ip
-rds
-elastic-load-balance
-auto-scaling
+nat-gateway v
+elastic-ip v
+rds v
+elastic-load-balance v 
+auto-scaling v
 
 # ap-southeast-5 (malaysia)
 IAM

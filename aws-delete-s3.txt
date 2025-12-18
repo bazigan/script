@@ -1,2 +1,27 @@
+#!/bin/bash
+
+# Fungsi untuk menghapus semua versi dan penanda hapus dari satu bucket
+delete_all_versions() {
+    BUCKET_NAME=$1
+    echo "--- Memproses Bucket: $BUCKET_NAME ---"
+
+    # 1. Hapus semua versi objek
+    aws s3api delete-objects --bucket "$BUCKET_NAME" --delete "$(aws s3api list-object-versions --bucket "$BUCKET_NAME" --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')"
+
+    # 2. Hapus semua penanda hapus (delete markers)
+    aws s3api delete-objects --bucket "$BUCKET_NAME" --delete "$(aws s3api list-object-versions --bucket "$BUCKET_NAME" --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}')"
+    
+    echo "Bucket $BUCKET_NAME sudah kosong dari semua versi dan penanda."
+}
+
+# Gunakan loop while read untuk membaca nama bucket secara aman dari aws s3 ls
+aws s3 ls | cut -d ' ' -f3 | while read bucket; do
+    if [ -n "$bucket" ]; then
+        delete_all_versions "$bucket"
+    fi
+done
+
+echo "Semua bucket telah diproses."
+
 aws s3 ls | cut -d ' ' -f3 | xargs -I {} aws s3 rm s3://{} --recursive
 aws s3 ls | cut -d ' ' -f3 | xargs -I {} aws s3 rb s3://{}
