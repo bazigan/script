@@ -1,8 +1,8 @@
 DATASTORE="DS-LOCAL-02"
-SRC_VM="template-vmware"
-PREFIX="esxi"
+SRC_VM="template-proxmox"
+PREFIX="pve"
 START=1
-END=6
+END=15
 DISK_TYPE="thin"
 
 SRC_PATH="/vmfs/volumes/$DATASTORE/$SRC_VM"

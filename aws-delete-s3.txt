@@ -1,27 +1,43 @@
-#!/bin/bash
+import boto3
 
-# Fungsi untuk menghapus semua versi dan penanda hapus dari satu bucket
-delete_all_versions() {
-    BUCKET_NAME=$1
-    echo "--- Memproses Bucket: $BUCKET_NAME ---"
-
-    # 1. Hapus semua versi objek
-    aws s3api delete-objects --bucket "$BUCKET_NAME" --delete "$(aws s3api list-object-versions --bucket "$BUCKET_NAME" --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')"
-
-    # 2. Hapus semua penanda hapus (delete markers)
-    aws s3api delete-objects --bucket "$BUCKET_NAME" --delete "$(aws s3api list-object-versions --bucket "$BUCKET_NAME" --query='{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}')"
+def delete_all_buckets():
+    s3 = boto3.resource('s3')
     
-    echo "Bucket $BUCKET_NAME sudah kosong dari semua versi dan penanda."
-}
+    print("Memindai akun untuk mencari semua S3 bucket...")
+    
+    # Langsung mengambil semua bucket yang ada di akun
+    semua_bucket = list(s3.buckets.all())
+    
+    if not semua_bucket:
+        print("Tidak ada bucket yang ditemukan di akun ini. Selesai.")
+        return
 
-# Gunakan loop while read untuk membaca nama bucket secara aman dari aws s3 ls
-aws s3 ls | cut -d ' ' -f3 | while read bucket; do
-    if [ -n "$bucket" ]; then
-        delete_all_versions "$bucket"
-    fi
-done
+    print(f"\n⚠️ DITEMUKAN {len(semua_bucket)} BUCKET TOTAL ⚠️")
+    for b in semua_bucket:
+        print(f" - {b.name}")
+        
+    # Jaring pengaman terakhir
+    konfirmasi = input("\nAPAKAH ANDA YAKIN INGIN MENGHAPUS SEMUA BUCKET DI ATAS SECARA PERMANEN? (ketik 'ya' / 'tidak'): ")
+    
+    if konfirmasi.lower() == 'ya':
+        for bucket in semua_bucket:
+            print(f"\n--- Menghancurkan: {bucket.name} ---")
+            try:
+                print("1. Mengosongkan semua data dan versi...")
+                bucket.object_versions.delete()
+                
+                print("2. Menghapus bucket...")
+                bucket.delete()
+                print(f"✅ '{bucket.name}' hangus tak bersisa.")
+            except Exception as e:
+                print(f"❌ Gagal menghapus '{bucket.name}'. Error: {e}")
+        print("\nProses sapu bersih selesai!")
+    else:
+        print("Proses dibatalkan. Data Anda aman.")
 
-echo "Semua bucket telah diproses."
+if __name__ == '__main__':
+    delete_all_buckets()
 
 aws s3 ls | cut -d ' ' -f3 | xargs -I {} aws s3 rm s3://{} --recursive
 aws s3 ls | cut -d ' ' -f3 | xargs -I {} aws s3 rb s3://{}
+aws s3 ls | cut -d ' ' -f3 | xargs -I {} aws s3 rb s3://{} --force

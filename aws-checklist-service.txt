@@ -13,15 +13,15 @@ elastic-load-balance v
 auto-scaling v
 
 # ap-southeast-5 (malaysia)
-IAM
-ec2
-ebs
-efs
-s3
-cloudfront
-vpc
-nat-gateway
-elastic-ip
-rds
-elastic-load-balance
-auto-scaling
+IAM v
+ec2 v
+ebs v
+efs v
+s3 v
+cloudfront v
+vpc v
+nat-gateway v
+elastic-ip v
+rds v
+elastic-load-balance v
+auto-scaling v
